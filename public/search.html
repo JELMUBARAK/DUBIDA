@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Understanding App</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/search.css" />
+</head>
+<body>
+  <main class="search-page">
+    <h1 class="logo">Understanding</h1>
+    <p class="tagline">Type a topic, add a file or a YouTube link. We'll turn it into something you can play with.</p>
+
+    <form id="searchForm" class="search-box" autocomplete="off">
+      <div class="attach-wrap">
+        <button type="button" id="plusBtn" class="icon-btn" aria-label="Add a file or YouTube link" aria-haspopup="true" aria-expanded="false">+</button>
+        <div id="plusMenu" class="menu" role="menu" hidden>
+          <button type="button" role="menuitem" data-menu="file">📄 Upload file<span>PDF, Word, text</span></button>
+          <button type="button" role="menuitem" data-menu="youtube">▶️ YouTube link<span>Paste a video URL</span></button>
+        </div>
+      </div>
+      <input id="query" type="text" placeholder="What do you want to understand?" aria-label="What do you want to understand?" />
+      <button type="button" id="webToggle" class="web-toggle is-on" aria-pressed="true" title="Search the web for sources">🌐 Web</button>
+      <button type="submit" id="goBtn" class="icon-btn go" aria-label="Start">→</button>
+      <input id="fileInput" type="file" accept=".pdf,.txt,.md,.doc,.docx" multiple hidden />
+    </form>
+
+    <div id="youtubeRow" class="youtube-row" hidden>
+      <input id="youtubeInput" type="url" placeholder="https://www.youtube.com/watch?v=…" aria-label="YouTube link" />
+      <button type="button" id="youtubeAdd" class="small-btn">Add</button>
+    </div>
+
+    <div id="attachments" class="attachments" aria-live="polite"></div>
+    <p id="message" class="message" role="status" hidden></p>
+
+    <div class="suggestions">
+      <button type="button" class="suggestion" data-topic="Thinking, Learning & Understanding">
+        <span class="s-icon">🧠</span>
+        <span><strong>Thinking, Learning &amp; Understanding</strong><small>Ready-made lesson · 3 mysteries · 5 units</small></span>
+      </button>
+    </div>
+  </main>
+
+  <script type="module" src="/js/search.js"></script>
+</body>
+</html>

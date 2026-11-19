@@ -250,8 +250,13 @@ test("HTTP Server Routes: Serves Learner Surface (/), Developer Route (/dev), an
     });
   }
 
-  // 1. Learner Discovery Surface (/)
-  const homeRes = await invokeRoute("GET", "/");
+  // 0. Start page (/) — minimal search box
+  const startRes = await invokeRoute("GET", "/");
+  assert.equal(startRes.statusCode, 200);
+  assert.ok(startRes.body.includes('id="searchForm"'));
+
+  // 1. Learner Discovery Surface (/learn)
+  const homeRes = await invokeRoute("GET", "/learn");
   assert.equal(homeRes.statusCode, 200);
   assert.ok(homeRes.body.includes("Understanding App — Interactive Discovery"));
   assert.ok(!homeRes.body.includes("QA Tester: Simulate a Learner Answer"), "Learner surface must have zero dev clutter");

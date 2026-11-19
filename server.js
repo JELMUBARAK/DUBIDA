@@ -150,7 +150,14 @@ export async function handleAppRequest(req, res) {
   }
 
   // HTML Surface Routes
-  if (pathname === "/" || pathname === "/index.html") {
+  // Start page: minimal search box (type a topic, upload files, YouTube links, web toggle).
+  if (pathname === "/" || pathname === "/search.html") {
+    serveStaticFile(res, path.join(__dirname, "public", "search.html"));
+    return;
+  }
+
+  // The built-in lesson (unchanged learner discovery surface).
+  if (pathname === "/learn" || pathname === "/index.html") {
     serveStaticFile(res, path.join(__dirname, "public", "index.html"));
     return;
   }
