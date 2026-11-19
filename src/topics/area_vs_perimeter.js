@@ -40,6 +40,7 @@ export const AREA_VS_PERIMETER_PACK = {
           status_default: "Photo: 3 cm × 2 cm",
           micro_copy: "Decorate the frame: wrap ribbon around it, or paint the middle?",
           toy: {
+            visual: "avp_frame",
             options: [
               { label: "🎀 Wrap ribbon around", result: "3 + 2 + 3 + 2 = 10 cm of ribbon. Framed!", tone: "ok" },
               { label: "🖌️ Paint the middle", result: "Middle painted, but the edge is still bare.", tone: "warn" }
@@ -52,6 +53,7 @@ export const AREA_VS_PERIMETER_PACK = {
           status_default: "Field: 4 m × 2 m",
           micro_copy: "Keep the sheep in: build a fence, or plant more grass?",
           toy: {
+            visual: "avp_sheep",
             options: [
               { label: "🪵 Fence the edge", result: "4 + 2 + 4 + 2 = 12 m of fence. Sheep stay in!", tone: "ok" },
               { label: "🌱 Plant more grass", result: "Lovely grass, and the sheep wander off.", tone: "warn" }
@@ -93,6 +95,7 @@ export const AREA_VS_PERIMETER_PACK = {
           status_default: "Floor: 4 tiles × 3 tiles",
           micro_copy: "How many tiles to buy? Count the floor, or measure the edge?",
           toy: {
+            visual: "avp_floor",
             options: [
               { label: "🔢 Count tiles to cover it", result: "3 rows of 4 = 12 tiles, no gaps!", tone: "ok" },
               { label: "📏 Measure the edge", result: "14 tiles of edge, but that doesn't cover the floor.", tone: "warn" }
@@ -105,6 +108,7 @@ export const AREA_VS_PERIMETER_PACK = {
           status_default: "Bar: 6 × 4 squares",
           micro_copy: "Enough for 24 friends? Count the squares, or measure the wrapper?",
           toy: {
+            visual: "avp_chocolate",
             options: [
               { label: "🔢 Count the squares", result: "4 rows of 6 = 24 squares. Everyone gets one!", tone: "ok" },
               { label: "📏 Measure the wrapper", result: "20 squares of edge, so nobody knows how many pieces.", tone: "warn" }
@@ -146,6 +150,7 @@ export const AREA_VS_PERIMETER_PACK = {
           status_default: "Fence: 12 m",
           micro_copy: "Same 12 m of fence. Long and thin, or square?",
           toy: {
+            visual: "avp_chickens",
             options: [
               { label: "➖ Long & thin (5 × 1)", result: "Only 5 m² inside. Chickens squashed!", tone: "warn" },
               { label: "⬛ Square (3 × 3)", result: "9 m² inside, almost double, same fence!", tone: "ok" }
@@ -158,6 +163,7 @@ export const AREA_VS_PERIMETER_PACK = {
           status_default: "Ribbon: 16 cm",
           micro_copy: "Same 16 cm of ribbon. Which card shape holds more?",
           toy: {
+            visual: "avp_card",
             options: [
               { label: "➖ Strip (7 × 1)", result: "7 cm² of card inside the ribbon.", tone: "warn" },
               { label: "⬛ Square (4 × 4)", result: "16 cm² of card, same ribbon!", tone: "ok" }
@@ -192,7 +198,27 @@ export const AREA_VS_PERIMETER_PACK = {
       { label: "1 · Perimeter", title: "Walk the edge", text: "Add every side: 2 × (width + height)." },
       { label: "2 · Area", title: "Fill the inside", text: "Rows × columns of unit squares: width × height." },
       { label: "3 · Trade-off", title: "Fix the edge, change the shape", text: "Same fence, squarer shape → more space inside." }
-    ]
+    ],
+    check: {
+      question: "You have 24 m of fence for a rabbit pen. Which pen gives the rabbit the most room?",
+      options: [
+        {
+          label: "6 m × 6 m",
+          correct: true,
+          feedback: "Spot on. Both pens use 24 m of fence, but the square holds 36 m² and the long one only 20 m²."
+        },
+        {
+          label: "10 m × 2 m",
+          correct: false,
+          feedback: "It uses the same 24 m of fence, but long and thin holds only 10 × 2 = 20 m². Try a squarer shape."
+        },
+        {
+          label: "Doesn't matter: same fence, same room",
+          correct: false,
+          feedback: "Same fence means the same perimeter, not the same area. A squarer shape fits more inside."
+        }
+      ]
+    }
   },
 
   // ==========================================================================

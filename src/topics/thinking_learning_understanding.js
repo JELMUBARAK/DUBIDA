@@ -32,13 +32,27 @@ export const THINKING_LEARNING_UNDERSTANDING_PACK = {
           id: "kitchen",
           title: "🍳 Kitchen",
           status_default: "Stove: OFF (Imagining)",
-          micro_copy: "Test ingredient pairs inside the thought-cloud while the real stove stays off."
+          micro_copy: "Test ingredient pairs inside the thought-cloud while the real stove stays off.",
+          toy: {
+            visual: "think_kitchen",
+            options: [
+              { label: "🥚 Eggs + 🍫 Choc", result: "🤢 Yuck, but only in your head. 0 eggs wasted.", tone: "warn" },
+              { label: "🥚 Eggs + 🍚 Rice", result: "🍲 Works in the thought-cloud. Ready to cook.", tone: "ok" }
+            ]
+          }
         },
         {
           id: "commute",
           title: "🚗 Route Map",
           status_default: "Car: PARKED",
-          micro_copy: "Preview highway and side-street traffic before driving out of your driveway."
+          micro_copy: "Preview highway and side-street traffic before driving out of your driveway.",
+          toy: {
+            visual: "think_commute",
+            options: [
+              { label: "🛣️ Preview Highway", result: "🔴 Blocked: +45 min. You saw it before leaving.", tone: "warn" },
+              { label: "🌲 Preview Side Rd", result: "🟢 Clear: 18 min. The car is still in the driveway.", tone: "ok" }
+            ]
+          }
         }
       ],
       pattern_question:
@@ -79,13 +93,29 @@ export const THINKING_LEARNING_UNDERSTANDING_PACK = {
           id: "court",
           title: "🏀 Free Throw",
           status_default: "Try 0 of 3",
-          micro_copy: "Shoot three free throws, using each rim bounce to calibrate your arc."
+          micro_copy: "Shoot three free throws, using each rim bounce to calibrate your arc.",
+          toy: {
+            visual: "think_court",
+            options: [
+              { label: "🏀 Shoot (Try 1)", result: "Short! Clanged the front rim → aim 20% higher.", tone: "warn" },
+              { label: "🎯 Aim higher (Try 2)", result: "Long! Off the backboard → ease the power 10%.", tone: "warn" },
+              { label: "🎯 Soften the arc (Try 3)", result: "Swish! That arc is now in muscle memory.", tone: "ok" }
+            ]
+          }
         },
         {
           id: "espresso",
           title: "☕ Espresso Pull",
           status_default: "Try 0 of 3",
-          micro_copy: "Pull three espresso shots, using the pressure gauge to dial in golden crema."
+          micro_copy: "Pull three espresso shots, using the pressure gauge to dial in golden crema.",
+          toy: {
+            visual: "think_espresso",
+            options: [
+              { label: "☕ Pull shot (Try 1)", result: "13 bar: choked and bitter → coarsen the grind.", tone: "warn" },
+              { label: "⚙️ Coarser grind (Try 2)", result: "4 bar: gushed and sour → dial to the middle.", tone: "warn" },
+              { label: "⚙️ Middle grind (Try 3)", result: "9 bar: golden crema! Setting remembered.", tone: "ok" }
+            ]
+          }
         }
       ],
       pattern_question:
@@ -126,13 +156,27 @@ export const THINKING_LEARNING_UNDERSTANDING_PACK = {
           id: "oven",
           title: "🧁 Oven Window",
           status_default: "0 Eggs · Need a Binder",
-          micro_copy: "Out of eggs: swap in a functional binder so the cake rises tall."
+          micro_copy: "Out of eggs: swap in a functional binder so the cake rises tall.",
+          toy: {
+            visual: "think_oven",
+            options: [
+              { label: "🧂 Swap in Salt", result: "❌ Salt can't hold the bubbles: the cake collapses flat.", tone: "warn" },
+              { label: "🍌 Swap in Banana", result: "✨ Banana binds the bubbles like egg: the cake rises tall.", tone: "ok" }
+            ]
+          }
         },
         {
           id: "budget",
           title: "💰 Connected Budget",
           status_default: "Surprise -$200 Tire Bill",
-          micro_copy: "Rebalance flexible dining spending to absorb a repair shock and protect savings."
+          micro_copy: "Rebalance flexible dining spending to absorb a repair shock and protect savings.",
+          toy: {
+            visual: "think_budget",
+            options: [
+              { label: "Drain Savings", result: "⚠️ Savings sink to $100. The next surprise breaks you.", tone: "warn" },
+              { label: "Shift Dining → Savings", result: "✅ Dining drops to $50, savings stay safe at $300.", tone: "ok" }
+            ]
+          }
         }
       ],
       pattern_question:
@@ -161,6 +205,39 @@ export const THINKING_LEARNING_UNDERSTANDING_PACK = {
       }
     }
   ],
+
+  // ==========================================================================
+  // THE LOOP: how the three mysteries connect + one real-life check (Unified Lesson Flow step 2)
+  // ==========================================================================
+  loop: {
+    headline: "One Loop: Simulate → Calibrate → Adapt",
+    steps: [
+      { label: "1 · Thinking", title: "💭 Simulate Options", text: "Preview \"what-if\" in your head before acting (Kitchen & Map)." },
+      { label: "2 · Learning", title: "🎯 Calibrate via Feedback", text: "Try, watch the miss, adjust, and wire it into memory (Hoop & Espresso)." },
+      { label: "3 · Understanding", title: "🔄 Adapt the System", text: "Know WHY the parts connect so you can handle new twists (Oven & Budget)." }
+    ],
+    check: {
+      question:
+        "Maya memorized every budgeting term and passed the quiz, but when her rent rose by $150 she couldn't figure out how to rebalance her budget. Which stage was missing?",
+      options: [
+        {
+          label: "Thinking",
+          correct: false,
+          feedback: "She could picture options fine. What broke was adapting the connected system to a new twist."
+        },
+        {
+          label: "Learning Terms",
+          correct: false,
+          feedback: "She already memorized the definitions. What broke was adapting the connected system to a new twist."
+        },
+        {
+          label: "Understanding",
+          correct: true,
+          feedback: "Spot on. She learned the facts, but hadn't connected how the parts drive each other, so she couldn't adapt when conditions changed."
+        }
+      ]
+    }
+  },
 
   // ==========================================================================
   // CORE ENGINE UNITS: 4-UNIT COURSE PATH + TAB 5 UNIFIED MASTERY RECAP
@@ -1069,7 +1146,7 @@ export const THINKING_LEARNING_UNDERSTANDING_PACK = {
               "Because identical wording lets you memorize the surface sentence without testing the underlying LTM Arch — whereas 'What-If' variation forces you to run the mental model on new cases!",
             correct: true,
             feedback:
-              "🎉 ALL 4 UNITS MASTERED! Now click Step 5 or Tab 5 ('🏆 Unified Recap') to consolidate all 4 units together!"
+              "🎉 ALL 4 UNITS MASTERED! Now open Unit 5 ('Fix Sam') to consolidate all 4 units together!"
           },
           {
             label: "Changing the question wording confuses Long-Term Memory and ruins retention.",
@@ -1096,7 +1173,7 @@ export const THINKING_LEARNING_UNDERSTANDING_PACK = {
               "Our engine adapts the gap: if `Check B (Why)` fails on a review, the gap resets to rebuild the LTM Arch before stretching out again."
           }
         ],
-        next_unit: "🏆 Ready for the Capstone: Launch Tab 5 (Unified Mastery Recap)!",
+        next_unit: "🏆 Ready for the Capstone: Unit 5 · Fix Sam!",
         next_unit_idx: 4,
         next_review: "10 mins (Backwards Review: Unit 4 → 3 → 2 → 1), then Day 1, Day 3, Day 7."
       }
@@ -1108,9 +1185,9 @@ export const THINKING_LEARNING_UNDERSTANDING_PACK = {
     {
       unit_num: 5,
       topic_id: "cog_unit5_unified_recap",
-      short_tab: "🏆 Unified Recap",
+      short_tab: "Unit 5 · Fix Sam",
       sub_tab: "Consolidate Units 1–4",
-      title: "Unified Mastery Recap: Rebuilding the Complete STM ↔ LTM Pipeline",
+      title: "Fix Sam: Rebuilding the Complete STM ↔ LTM Pipeline",
       purpose_hook:
         "Fuse all 4 units into 1 Master Schema by walking the chain backwards and fixing Sam's broken study system.",
       lesson_version: "2.3.0",
@@ -1322,5 +1399,32 @@ export const THINKING_LEARNING_UNDERSTANDING_PACK = {
         next_review: "Scheduled: 10-min Backwards Check ✓ → Day 1 Transfer Check → Day 3 → Day 7."
       }
     }
-  ]
+  ],
+
+  // ==========================================================================
+  // RECAP & WHAT'S NEXT (Unified Lesson Flow steps 4 and 5)
+  // ==========================================================================
+  recap: {
+    backwards_question: "Walk it backwards: from 3 · Understanding back to 1 · Thinking, which chain is right?",
+    backwards_options: [
+      {
+        label:
+          "🔄 Adapting to new twists (Understanding) ◄── requires feedback-calibrated skill in LTM (Learning) ◄── which starts with mental \"what-if\" simulation (Thinking).",
+        correct: true
+      },
+      { label: "🔄 Each concept is an isolated study tip that works without the earlier steps.", correct: false }
+    ],
+    hook_placeholder: "Write your 1-sentence takeaway for tomorrow's spaced review..."
+  },
+
+  apply: {
+    placeholder: "What are you about to learn or work on? (e.g. Spanish verbs, a work report)",
+    steps: [
+      { label: "Thinking", text: "Before you start, spend 2 minutes picturing how it could go, and what could go wrong." },
+      { label: "4-Slot Focus", text: "Phone in another room. Work on no more than 4 new ideas at a time." },
+      { label: "Understanding", text: "For each new fact, ask \"why?\" and link it to something you already know." },
+      { label: "Learning", text: "Close the book and explain it from memory. Check what you missed, fix it, try again." },
+      { label: "Spacing", text: "Recall it again tomorrow, in 3 days and in a week, without rereading first." }
+    ]
+  }
 };

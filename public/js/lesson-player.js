@@ -7,11 +7,11 @@
  */
 
 import { UnitRuntimeSession } from "/src/engine/runtime.js";
-import { renderVisual, hasVisual } from "/js/lesson-visuals.js";
+import { renderVisual, hasVisual, renderScene, hasScene } from "/js/lesson-visuals.js";
 
 const params = new URLSearchParams(location.search);
-const TOPIC_ID = params.get("topic") || "";
-const STORAGE_KEY = `dubida_lesson_${TOPIC_ID}`;
+let TOPIC_ID = params.get("topic") || ""; // empty on /learn: resolved from the registry in boot()
+let STORAGE_KEY = `dubida_lesson_${TOPIC_ID}`;
 const stage = document.getElementById("stage");
 
 let pack = null;
@@ -19,9 +19,10 @@ const sessions = {}; // topic_id -> UnitRuntimeSession
 const drafts = {}; // topic_id -> { how, why, confidence, followup }
 
 const defaultState = () => ({
-  screen: "card", // card | loop | unit | recap
+  screen: "setup", // setup | card | loop | unit | recap  (the Unified Lesson Flow, src/engine/flow.js)
   idx: 0,
   depth: "simple",
+  loopCheck: null, // index of the option picked in The Loop's real-life check
   cards: {}, // cardId -> { solved, wrongMsg }
   toys: {}, // cardId -> { sceneId -> { tried: [optionIdx], last } }
   units: {}, // topic_id -> serialized session state
@@ -97,34 +98,97 @@ const btnIdle = "border-[var(--card-border)] hover:border-[var(--foreground)]";
 
 // ---------------------------------------------------------------- navigation bar
 
-function renderNav() {
-  const pills = [];
-  pack.discovery_cards.forEach((c, i) => {
-    const solved = state.cards[c.id]?.solved;
-    const active = state.screen === "card" && state.idx === i;
-    pills.push({ label: solved ? c.solved_label : c.mystery_label, active, solved, on: `go('card', ${i})` });
-  });
-  pills.push({ label: "The Loop", active: state.screen === "loop", on: "go('loop')" });
-  pack.units.forEach((u, i) => {
-    const mastered = sessions[u.topic_id]?.state.masteryState === "independent_mastery" ||
-      (state.units[u.topic_id] && JSON.parse(state.units[u.topic_id]).masteryState === "independent_mastery");
-    pills.push({ label: `${u.short_tab}${mastered ? " ✓" : ""}`, active: state.screen === "unit" && state.idx === i, solved: mastered, on: `go('unit', ${i})` });
-  });
-  pills.push({ label: "🏆 Recap", active: state.screen === "recap", on: "go('recap')" });
+function unitMastered(u) {
+  return (
+    sessions[u.topic_id]?.state.masteryState === "independent_mastery" ||
+    (state.units[u.topic_id] && JSON.parse(state.units[u.topic_id]).masteryState === "independent_mastery")
+  );
+}
 
-  document.getElementById("navPills").innerHTML = pills
-    .map(
-      p => `<button onclick="${p.on}" class="px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-        p.active
-          ? "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
-          : p.solved
-          ? "border-[var(--success)] text-[var(--success)] bg-[var(--card)]"
-          : "border-[var(--card-border)] bg-[var(--card)] hover:border-[var(--foreground)]"
-      }">${esc(p.label)}</button>`
-    )
-    .join("");
+function pillHtml(p) {
+  return `<button onclick="${p.on}" class="shrink-0 whitespace-nowrap px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+    p.active
+      ? "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
+      : p.solved
+      ? "border-[var(--success)] text-[var(--success)] bg-[var(--card)]"
+      : "border-[var(--card-border)] bg-[var(--card)] hover:border-[var(--foreground)]"
+  }">${esc(p.label)}</button>`;
+}
+
+// Top bar = the same 5 flow steps in every lesson, with progress counts.
+function renderNav() {
+  const cards = pack.discovery_cards;
+  const solved = cards.filter(c => state.cards[c.id]?.solved).length;
+  const firstOpenCard = Math.max(0, cards.findIndex(c => !state.cards[c.id]?.solved));
+  const mastered = pack.units.filter(unitMastered).length;
+  const firstOpenUnit = Math.max(0, pack.units.findIndex(u => !unitMastered(u)));
+  const pills = [
+    { label: "Setup", active: state.screen === "setup", on: "go('setup')" },
+    { label: `Mysteries ${solved}/${cards.length}`, active: state.screen === "card", solved: solved === cards.length, on: `go('card', ${firstOpenCard})` },
+    { label: "The Loop", active: state.screen === "loop", solved: pack.loop?.check?.options[state.loopCheck]?.correct === true, on: "go('loop')" },
+    { label: `Units ${mastered}/${pack.units.length}`, active: state.screen === "unit", solved: mastered === pack.units.length, on: `go('unit', ${firstOpenUnit})` },
+    { label: "🏆 Recap", active: state.screen === "recap", solved: state.recap.saved, on: "go('recap')" }
+  ];
+  document.getElementById("navPills").innerHTML = pills.map(pillHtml).join("");
   document.getElementById("depthBtn").textContent = state.depth === "deep" ? "🔬 Deep" : "🌱 Simple";
 }
+
+// Second row, only inside the Mysteries and Units steps.
+function renderSubTabs() {
+  let pills = [];
+  if (state.screen === "card") {
+    pills = pack.discovery_cards.map((c, i) => {
+      const solved = state.cards[c.id]?.solved;
+      return { label: solved ? c.solved_label : c.mystery_label, active: state.idx === i, solved, on: `go('card', ${i})` };
+    });
+  } else if (state.screen === "unit") {
+    pills = pack.units.map((u, i) => {
+      const done = unitMastered(u);
+      return { label: `${u.short_tab}${done ? " ✓" : ""}`, active: state.idx === i, solved: done, on: `go('unit', ${i})` };
+    });
+  }
+  return pills.length ? `<div class="flex flex-wrap justify-center gap-1.5">${pills.map(pillHtml).join("")}</div>` : "";
+}
+
+// ---------------------------------------------------------------- step 0: setup
+
+function renderSetup() {
+  const depthChoice = (id, label, sub) => `
+    <button onclick="setDepth('${id}')" class="p-3 rounded-xl border text-left transition-all ${
+      state.depth === id
+        ? "border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]"
+        : "border-[var(--card-border)] bg-[var(--background)] hover:border-[var(--foreground)]"
+    }">
+      <div class="font-semibold">${label}</div>
+      <div class="opacity-75 mt-0.5">${sub}</div>
+    </button>`;
+  return `
+    <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-6 space-y-5 fade-in">
+      <div class="text-center space-y-1">
+        <p class="text-xs font-mono uppercase tracking-widest text-[var(--primary)]">Before you start</p>
+        <h2 class="text-xl font-bold">${esc(pack.title)}</h2>
+        <p class="text-xs text-[var(--muted-foreground)]">${pack.discovery_cards.length} mysteries · ${pack.units.length} units. You can switch depth any time.</p>
+      </div>
+      <div class="space-y-2">
+        <div class="text-xs font-medium text-[var(--muted-foreground)]">How deep do you want to go?</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          ${depthChoice("simple", "🌱 Simple & Visual", "Everyday intuition, zero jargon")}
+          ${depthChoice("deep", "🔬 Under the Hood", "Adds the real mechanism behind every mystery")}
+        </div>
+      </div>
+      <div class="pt-1 flex justify-center">
+        <button onclick="go('card', 0)" class="px-6 py-2.5 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold hover:opacity-90 transition-opacity">
+          Start Mystery 1 →
+        </button>
+      </div>
+    </div>`;
+}
+
+window.setDepth = d => {
+  state.depth = d;
+  save();
+  render();
+};
 
 // ---------------------------------------------------------------- discovery cards
 
@@ -155,10 +219,11 @@ function renderCard(i) {
         <div class="flex items-center justify-between text-xs">
           <span class="font-medium text-[var(--foreground)]">${esc(sc.title)}</span>
           <span class="px-2 py-0.5 rounded-full ${done ? "bg-[var(--success)] text-white" : "bg-[var(--secondary)] text-[var(--muted-foreground)]"}">
-            ${done ? "✓ Done" : `Try both · ${t.tried.length}/${opts.length}`}
+            ${done ? "✓ Done" : `${opts.length > 2 ? "Try all" : "Try both"} · ${t.tried.length}/${opts.length}`}
           </span>
         </div>
-        <div class="rounded-xl bg-[var(--background)] border border-[var(--card-border)] p-3 min-h-[74px] flex items-center justify-center text-center">
+        <div class="rounded-xl bg-[var(--background)] border border-[var(--card-border)] p-2 min-h-[74px] flex flex-col items-center justify-center text-center gap-1">
+          ${hasScene(sc) ? renderScene(sc, t.last, t.tried) : ""}
           ${
             last
               ? `<div class="fade-in text-sm font-semibold ${last.tone === "ok" ? "text-[var(--success)]" : "text-[var(--warning)]"}">${esc(last.result)}</div>`
@@ -214,7 +279,7 @@ function renderCard(i) {
       </div>`;
   } else {
     bottom = `<div class="rounded-xl border border-dashed border-[var(--primary)] p-3 text-center text-xs">
-      👆 To unlock the question, finish: <b>${remaining.map(esc).join(" and ")}</b> (try both options in each scene)
+      👆 To unlock the question, finish: <b>${remaining.map(esc).join(" and ")}</b> (try every option in each scene)
     </div>`;
   }
 
@@ -280,13 +345,59 @@ function renderLoop() {
         )
         .join("")}
     </div>
-    <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-4 text-sm text-[var(--muted-foreground)]">
-      ${esc(pack.system_model.description)}
-    </div>
-    <div class="flex justify-end">
+    ${renderLoopCheck(loop?.check)}`;
+}
+
+function renderLoopCheck(check) {
+  const start = `<div class="flex justify-end fade-in">
       <button onclick="go('unit', 0)" class="px-4 py-2 rounded-full bg-[var(--foreground)] text-[var(--background)] text-xs font-semibold">Start ${esc(pack.units[0].short_tab)} →</button>
     </div>`;
+  if (!check) return start;
+  const picked = state.loopCheck != null ? check.options[state.loopCheck] : null;
+  return `
+    <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-4 space-y-2.5">
+      <div class="text-xs font-mono uppercase tracking-widest text-[var(--muted-foreground)]">Real-life check · one tap</div>
+      <div class="text-sm font-semibold">${esc(check.question)}</div>
+      <div class="grid grid-cols-1 sm:grid-cols-${Math.min(3, check.options.length)} gap-2 text-xs">
+        ${check.options
+          .map(
+            (o, k) => `<button onclick="answerLoopCheck(${k})" class="p-3 ${btnBase} text-left font-medium ${
+              state.loopCheck === k ? (o.correct ? "border-[var(--success)] font-semibold" : "border-[var(--warning)]") : btnIdle
+            }">${esc(o.label)}</button>`
+          )
+          .join("")}
+      </div>
+      ${
+        picked
+          ? `<div class="text-xs fade-in ${picked.correct ? "text-[var(--success)] font-semibold" : "text-[var(--warning)]"}">${
+              picked.correct ? "✓ " : ""
+            }${esc(picked.feedback || (picked.correct ? "Spot on." : "Not quite. Look at the three steps again."))}</div>`
+          : ""
+      }
+    </div>
+    ${picked?.correct ? start : ""}`;
 }
+
+window.answerLoopCheck = k => {
+  const check = pack.loop.check;
+  const o = check.options[k];
+  const firstTry = state.loopCheck == null;
+  state.loopCheck = k;
+  postLedger({
+    topic_id: `${pack.topic_pack_id}_loop_check`,
+    objective_id: "loop_real_life_check",
+    lesson_version: pack.version,
+    rubric_version: pack.version,
+    learner_response: o.label,
+    check_a_prediction_pass: Boolean(o.correct),
+    check_b_mechanism_pass: Boolean(o.correct),
+    misconception_tag: o.correct ? null : `loop_check_option_${k}`,
+    help_used: o.correct && firstTry ? [] : ["loop_check_retry"],
+    mastery_state: "supported_practice"
+  });
+  save();
+  render();
+};
 
 // ---------------------------------------------------------------- units
 
@@ -707,11 +818,12 @@ function render() {
   if (!pack) return;
   renderNav();
   let html = "";
-  if (state.screen === "card") html = renderCard(Math.min(state.idx, pack.discovery_cards.length - 1));
+  if (state.screen === "setup") html = renderSetup();
+  else if (state.screen === "card") html = renderCard(Math.min(state.idx, pack.discovery_cards.length - 1));
   else if (state.screen === "loop") html = renderLoop();
   else if (state.screen === "unit") html = renderUnit(Math.min(state.idx, pack.units.length - 1));
   else html = renderRecap();
-  stage.innerHTML = html;
+  stage.innerHTML = renderSubTabs() + html;
 }
 
 window.go = go;
@@ -731,6 +843,16 @@ window.resetLesson = () => {
 };
 
 (async function boot() {
+  if (!TOPIC_ID) {
+    // A lesson served at its own path (e.g. /learn): find the pack whose registry href is this path.
+    try {
+      const { packs } = await (await fetch("/api/packs")).json();
+      TOPIC_ID = packs.find(p => p.href === location.pathname)?.id || "";
+      STORAGE_KEY = `dubida_lesson_${TOPIC_ID}`;
+    } catch {
+      // fall through to "No topic chosen"
+    }
+  }
   if (!TOPIC_ID) {
     stage.innerHTML = `<p class="text-sm text-center py-10">No topic chosen. <a class="text-[var(--primary)] underline" href="/">Search for one</a>.</p>`;
     return;

@@ -180,9 +180,11 @@ export async function handleAppRequest(req, res) {
     return;
   }
 
-  // The built-in lesson (unchanged learner discovery surface).
+  // The flagship lesson, now played by the shared lesson player (Unified Lesson Flow).
+  // The player sees no ?topic= and picks the pack whose registry href is "/learn".
+  // public/index.html + js/learner-app.js (the old hand-built page) are kept on disk, unused, as a fallback.
   if (pathname === "/learn" || pathname === "/index.html") {
-    serveStaticFile(res, path.join(__dirname, "public", "index.html"));
+    serveStaticFile(res, path.join(__dirname, "public", "lesson.html"));
     return;
   }
 

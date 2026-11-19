@@ -5,7 +5,7 @@ import { ALL_PACKS, FLAGSHIP_PACK_ID, getPack, listPacks } from "../src/topics/i
 import { compileAndValidateTopicPack } from "../src/engine/schema.js";
 import { evaluateSplitRubric } from "../src/engine/grader.js";
 import { UnitRuntimeSession } from "../src/engine/runtime.js";
-import { renderVisual, hasVisual } from "../public/js/lesson-visuals.js";
+import { renderVisual, hasVisual, renderScene, hasScene } from "../public/js/lesson-visuals.js";
 
 const NEW_PACKS = ALL_PACKS.filter(p => p.topic_pack_id !== FLAGSHIP_PACK_ID);
 const oneCorrect = (opts, label) => assert.equal(opts.filter(o => o.correct).length, 1, `${label}: exactly one correct option`);
@@ -17,6 +17,52 @@ test("Registry lists every pack with a link; flagship keeps /learn", () => {
   for (const p of NEW_PACKS) {
     assert.equal(getPack(p.topic_pack_id), p);
     assert.ok(list.find(x => x.id === p.topic_pack_id).href.startsWith("/lesson?topic="));
+  }
+});
+
+// The visual kit (public/js/visual-kit.js) is the standard for every drawing: units use frame(), scenes use sceneFrame().
+const KIT_UNIT = /^<svg [^>]*class="[^"]*\bvk\b/;
+const KIT_SCENE = /^<svg [^>]*class="[^"]*\bvk-scene\b/;
+const BROKEN = /NaN|undefined|Infinity/;
+
+for (const pack of ALL_PACKS) {
+  test(`Kit standard · ${pack.title}: every unit drawing is built with the visual kit`, () => {
+    for (const unit of pack.units) {
+      const { dial1, dial2 } = unit.object_spec.dials;
+      for (const [a, b] of [[dial1.min, dial2.min], [dial1.max, dial2.max], [dial1.min, dial2.max], [dial1.max, dial2.min]]) {
+        const { svg } = renderVisual(unit.object_spec, a, b);
+        assert.match(svg, KIT_UNIT, `${unit.topic_id} @ ${a},${b} must use frame() from the visual kit`);
+      }
+    }
+  });
+
+  test(`Kit standard · ${pack.title}: every mystery scene has a kit picture for every tap`, () => {
+    for (const card of pack.discovery_cards) {
+      for (const scene of card.scenes) {
+        const where = `${card.id}/${scene.id}`;
+        assert.ok(hasScene(scene), `${where}: toy.visual '${scene.toy?.visual}' needs a scene renderer`);
+        const states = [[null, []], ...scene.toy.options.map((_, k) => [k, scene.toy.options.map((__, j) => j).slice(0, k + 1)])];
+        for (const [last, tried] of states) {
+          const svg = renderScene(scene, last, tried);
+          assert.match(svg, KIT_SCENE, `${where} (tap ${last}) must use sceneFrame() from the visual kit`);
+          assert.ok(!BROKEN.test(svg), `${where} (tap ${last}) has NaN/undefined`);
+        }
+      }
+    }
+  });
+}
+
+test("Flagship: every unit's living object renders in the generic player at every dial setting", () => {
+  for (const unit of getPack(FLAGSHIP_PACK_ID).units) {
+    assert.ok(hasVisual(unit.object_spec), `${unit.topic_id}: renderer for type '${unit.object_spec.type}'`);
+    const { dial1, dial2 } = unit.object_spec.dials;
+    for (let a = dial1.min; a <= dial1.max; a++) {
+      for (let b = dial2.min; b <= dial2.max; b++) {
+        const { svg, banner } = renderVisual(unit.object_spec, a, b);
+        assert.ok(svg.startsWith("<svg") && banner.length > 0, `${unit.topic_id} @ ${a},${b}`);
+        assert.ok(!/NaN|undefined|Infinity/.test(svg + banner), `${unit.topic_id} @ ${a},${b} has no NaN/undefined`);
+      }
+    }
   }
 });
 

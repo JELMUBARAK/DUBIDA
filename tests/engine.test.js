@@ -255,10 +255,10 @@ test("HTTP Server Routes: Serves Learner Surface (/), Developer Route (/dev), an
   assert.equal(startRes.statusCode, 200);
   assert.ok(startRes.body.includes('id="searchForm"'));
 
-  // 1. Learner Discovery Surface (/learn)
+  // 1. Flagship lesson (/learn): played by the shared lesson player
   const homeRes = await invokeRoute("GET", "/learn");
   assert.equal(homeRes.statusCode, 200);
-  assert.ok(homeRes.body.includes("Understanding App — Interactive Discovery"));
+  assert.ok(homeRes.body.includes("/js/lesson-player.js"), "/learn must use the shared lesson player");
   assert.ok(!homeRes.body.includes("QA Tester: Simulate a Learner Answer"), "Learner surface must have zero dev clutter");
 
   // 2. Developer & Telemetry Route (/dev)

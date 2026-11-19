@@ -40,6 +40,7 @@ export const MULTIPLY_BY_11_PACK = {
           status_default: "Wallet: notes and coins",
           micro_copy: "Pay exactly $11: hand over a note, then a coin.",
           toy: {
+            visual: "m11_wallet",
             options: [
               { label: "💵 Hand over $10", result: "$10 paid, $1 still to go.", tone: "warn" },
               { label: "🪙 Add a $1 coin", result: "$10 + $1 = $11 exactly.", tone: "ok" }
@@ -52,6 +53,7 @@ export const MULTIPLY_BY_11_PACK = {
           status_default: "Squad: 11 players",
           micro_copy: "Line up outfield players first, then the goalkeeper.",
           toy: {
+            visual: "m11_team",
             options: [
               { label: "🏃 10 outfield players", result: "10 on the pitch. The goal is still empty.", tone: "warn" },
               { label: "🧤 1 goalkeeper", result: "10 + 1 = a full team of 11.", tone: "ok" }
@@ -93,6 +95,7 @@ export const MULTIPLY_BY_11_PACK = {
           status_default: "Display: 23",
           micro_copy: "Press × 10, then × 10 again. Watch the digits.",
           toy: {
+            visual: "m11_calculator",
             options: [
               { label: "✖️ × 10", result: "23 → 230: every digit slid one place left.", tone: "ok" },
               { label: "✖️ × 10 again", result: "230 → 2300: slid left again, a zero fills the gap.", tone: "ok" }
@@ -105,6 +108,7 @@ export const MULTIPLY_BY_11_PACK = {
           status_default: "Piggy bank: 7 coins of $1",
           micro_copy: "Make it ten times bigger: count it in tens instead.",
           toy: {
+            visual: "m11_coins",
             options: [
               { label: "🪙 Seven $1 coins", result: "7 ones = $7.", tone: "warn" },
               { label: "💵 Seven $10 notes", result: "7 tens = $70: the 7 moved to the tens place.", tone: "ok" }
@@ -146,6 +150,7 @@ export const MULTIPLY_BY_11_PACK = {
           status_default: "230 + 23",
           micro_copy: "Add the outside columns, then the middle column.",
           toy: {
+            visual: "m11_stack23",
             options: [
               { label: "↔️ Outside columns", result: "Ends stay 2 … 3.", tone: "warn" },
               { label: "🎯 Middle column", result: "3 + 2 = 5 in the middle: 253!", tone: "ok" }
@@ -158,6 +163,7 @@ export const MULTIPLY_BY_11_PACK = {
           status_default: "450 + 45",
           micro_copy: "Same trick: outside columns first, then the middle.",
           toy: {
+            visual: "m11_stack45",
             options: [
               { label: "↔️ Outside columns", result: "Ends stay 4 … 5.", tone: "warn" },
               { label: "🎯 Middle column", result: "5 + 4 = 9 in the middle: 495!", tone: "ok" }
@@ -192,7 +198,27 @@ export const MULTIPLY_BY_11_PACK = {
       { label: "1 · Split", title: "11 = 10 + 1", text: "Times 11 is times 10 plus times 1." },
       { label: "2 · Shift", title: "×10 slides left", text: "The ×10 row is the number moved one place left." },
       { label: "3 · Add", title: "Neighbours meet", text: "Stack and add: the middle digit is the two digits' sum." }
-    ]
+    ],
+    check: {
+      question: "A coach buys 11 football shirts at £27 each. No calculator: what's the total?",
+      options: [
+        {
+          label: "£297",
+          correct: true,
+          feedback: "Spot on. Keep the ends (2 … 7) and put their sum in the middle: 2 + 7 = 9, so £297."
+        },
+        {
+          label: "£277",
+          correct: false,
+          feedback: "That just repeats a digit. The middle is the two digits added together: 2 + 7 = 9."
+        },
+        {
+          label: "£270",
+          correct: false,
+          feedback: "That's only 27 × 10. Times 11 is times 10 plus one more 27: 270 + 27 = 297."
+        }
+      ]
+    }
   },
 
   // ==========================================================================

@@ -121,3 +121,56 @@
 .pulse-live {
   animation: pulseBadge 1.3s ease-in-out infinite;
 }
+
+/* ---------------------------------------------------------------- visual kit (public/js/visual-kit.js) */
+
+/* A squeeze on each beat: hard squeeze in the first 30%, then relax and refill. */
+@keyframes vkBeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(var(--vk-squeeze, 0.9));
+  }
+  32% {
+    transform: scale(1);
+  }
+}
+
+.vk-beat {
+  transform-box: fill-box;
+  animation: vkBeat var(--vk-beat, 1s) ease-in-out infinite;
+}
+
+/* Label chips: rect = background + border, text = foreground. */
+.vk-chip-neutral rect { fill: var(--card); stroke: var(--card-border); }
+.vk-chip-neutral text { fill: var(--foreground); }
+.vk-chip-ok rect { fill: #ecfdf5; stroke: #6ee7b7; }
+.vk-chip-ok text { fill: #047857; }
+.vk-chip-warn rect { fill: #fffbeb; stroke: #fcd34d; }
+.vk-chip-warn text { fill: #b45309; }
+.vk-chip-bad rect { fill: #fef2f2; stroke: #fca5a5; }
+.vk-chip-bad text { fill: #b91c1c; }
+.vk-chip-info rect { fill: #eff6ff; stroke: #93c5fd; }
+.vk-chip-info text { fill: #1d4ed8; }
+
+@media (prefers-color-scheme: dark) {
+  .vk-chip-ok rect { fill: #052e22; stroke: #059669; }
+  .vk-chip-ok text { fill: #6ee7b7; }
+  .vk-chip-warn rect { fill: #3a2606; stroke: #d97706; }
+  .vk-chip-warn text { fill: #fcd34d; }
+  .vk-chip-bad rect { fill: #3b0d0d; stroke: #dc2626; }
+  .vk-chip-bad text { fill: #fca5a5; }
+  .vk-chip-info rect { fill: #0b1d3d; stroke: #2563eb; }
+  .vk-chip-info text { fill: #93c5fd; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vk-beat {
+    animation: none;
+  }
+  .vk .vk-particle {
+    display: none;
+  }
+}
