@@ -362,7 +362,12 @@ window.updatePersonalRule = val => {
 };
 
 window.savePersonalRule = () => {
-  if (!state.recap_personalRule.trim()) return;
+  if (!state.recap_personalRule.trim()) {
+    state.recap_ruleEmptyHint = true;
+    render();
+    return;
+  }
+  state.recap_ruleEmptyHint = false;
   state.recap_ruleSaved = true;
   emitTelemetry({
     topic_id: "cog_unit5_unified_recap",
@@ -1423,6 +1428,11 @@ function render() {
             ${
               state.recap_ruleSaved
                 ? `<div class="text-xs text-[var(--success)] font-mono">✓ Scheduled: 10 min (Backwards Review) → 1 hr → Day 1 → Day 3 → Day 7</div>`
+                : ""
+            }
+            ${
+              state.recap_ruleEmptyHint && !state.recap_ruleSaved
+                ? `<div class="text-xs text-[var(--warning)] font-semibold">✍️ Write your 1-sentence takeaway first, then tap Save Day-1 Hook.</div>`
                 : ""
             }
             ${state.recap_ruleSaved ? renderWhatsNext() : ""}

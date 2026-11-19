@@ -69,7 +69,8 @@ function serveStaticFile(res, filePath) {
       sendJson(res, 404, { error: "Not found" });
       return;
     }
-    res.writeHead(200, { "Content-Type": contentType });
+    // no-cache: the browser always checks for the latest file, so updates show without a hard refresh.
+    res.writeHead(200, { "Content-Type": contentType, "Cache-Control": "no-cache" });
     res.end(content);
   });
 }
