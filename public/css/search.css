@@ -170,6 +170,7 @@ body {
   color: var(--foreground);
   font: inherit;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
 }
 .suggestion:hover { background: color-mix(in srgb, var(--primary) 14%, var(--card)); }

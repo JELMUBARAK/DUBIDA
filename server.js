@@ -21,6 +21,7 @@ import { THINKING_LEARNING_UNDERSTANDING_PACK } from "./src/topics/thinking_lear
 import { compileAndValidateTopicPack } from "./src/engine/schema.js";
 import { evaluateSplitRubric } from "./src/engine/grader.js";
 import { EvidenceLedgerStore } from "./src/engine/ledger.js";
+import { getPack, listPacks } from "./src/topics/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -96,6 +97,28 @@ export async function handleAppRequest(req, res) {
     return;
   }
 
+  // Lesson registry for the search page and the generic lesson player.
+  if (pathname === "/api/packs" && req.method === "GET") {
+    sendJson(res, 200, { packs: listPacks() });
+    return;
+  }
+
+  const packMatch = pathname.match(/^\/api\/packs\/([\w-]+)$/);
+  if (packMatch && req.method === "GET") {
+    const pack = getPack(packMatch[1]);
+    if (!pack) {
+      sendJson(res, 404, { error: `Unknown topic: ${packMatch[1]}` });
+      return;
+    }
+    const report = compileAndValidateTopicPack(pack);
+    if (!report.valid) {
+      sendJson(res, 422, { error: "Topic failed the 5-gate compiler", errors: report.errors });
+      return;
+    }
+    sendJson(res, 200, pack);
+    return;
+  }
+
   if (pathname === "/api/validate" && req.method === "GET") {
     const report = compileAndValidateTopicPack(THINKING_LEARNING_UNDERSTANDING_PACK);
     sendJson(res, report.valid ? 200 : 422, report);
@@ -160,6 +183,12 @@ export async function handleAppRequest(req, res) {
   // The built-in lesson (unchanged learner discovery surface).
   if (pathname === "/learn" || pathname === "/index.html") {
     serveStaticFile(res, path.join(__dirname, "public", "index.html"));
+    return;
+  }
+
+  // Generic lesson player for every non-flagship topic: /lesson?topic=<id>
+  if (pathname === "/lesson" || pathname === "/lesson.html") {
+    serveStaticFile(res, path.join(__dirname, "public", "lesson.html"));
     return;
   }
 

@@ -5,11 +5,18 @@
  * and acknowledged; AI lesson generation (Claude) is wired up in step 2 via `submitRequest`.
  */
 
-const BUILT_IN = {
-  title: "Thinking, Learning & Understanding",
-  href: "/learn",
-  keywords: ["thinking", "learning", "understanding", "memory", "how we learn"]
-};
+// Ready-made lessons, loaded from /api/packs. The flagship is listed here too as a fallback.
+let PACKS = [
+  {
+    id: "thinking_learning_understanding_v2",
+    title: "Thinking, Learning & Understanding",
+    kind: "concept",
+    subtitle: "Ready-made lesson · 3 mysteries · 5 units",
+    keywords: ["thinking", "learning", "understanding", "memory", "how we learn"],
+    href: "/learn"
+  }
+];
+const KIND_ICON = { fact: "📘", skill: "🛠️", concept: "🧩" };
 const YOUTUBE_RE = /^(https?:\/\/)?(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/|embed\/)|youtu\.be\/)[\w-]{6,}/i;
 const MAX_FILE_MB = 20;
 
@@ -145,10 +152,41 @@ webToggle.addEventListener("click", () => {
 
 // ---------------------------------------------------------------- submit
 
-function matchesBuiltIn(text) {
+/** Best ready-made lesson for the typed text (most keyword hits wins), or null. */
+function findPack(text) {
   const t = text.toLowerCase();
-  return BUILT_IN.keywords.some(k => t.includes(k));
+  let best = null;
+  let bestHits = 0;
+  for (const p of PACKS) {
+    const hits = p.keywords.filter(k => t.includes(k.toLowerCase())).length;
+    if (hits > bestHits) {
+      best = p;
+      bestHits = hits;
+    }
+  }
+  return best;
 }
+
+function renderSuggestions() {
+  document.getElementById("suggestions").innerHTML = PACKS.map(
+    p => `<a class="suggestion" href="${escapeHtml(p.href)}">
+      <span class="s-icon">${p.id.startsWith("thinking_") ? "🧠" : KIND_ICON[p.kind] || "🧩"}</span>
+      <span><strong>${escapeHtml(p.title)}</strong><small>${escapeHtml(p.subtitle)}</small></span>
+    </a>`
+  ).join("");
+}
+
+fetch("/api/packs")
+  .then(r => (r.ok ? r.json() : null))
+  .then(data => {
+    if (data?.packs?.length) {
+      PACKS = data.packs;
+      renderSuggestions();
+    }
+  })
+  .catch(() => {
+    // offline: keep the built-in fallback suggestion
+  });
 
 /** Step 2 replaces this with a call to the lesson-generation API. */
 async function submitRequest({ topic, web, files, youtube }) {
@@ -159,7 +197,7 @@ async function submitRequest({ topic, web, files, youtube }) {
   ].filter(Boolean);
   showMessage(
     `Got it: "${topic || "your material"}"${sources.length ? ` from ${sources.join(", ")}` : ""}. ` +
-      `Building lessons for new topics comes in the next step. For now, try the ready-made lesson below.`
+      `Building lessons for new topics comes in the next step. For now, try one of the ready-made lessons below.`
   );
 }
 
@@ -171,15 +209,12 @@ form.addEventListener("submit", e => {
     query.focus();
     return;
   }
-  if (topic && !hasSources && matchesBuiltIn(topic)) {
-    location.href = BUILT_IN.href;
+  const match = topic && !hasSources ? findPack(topic) : null;
+  if (match) {
+    location.href = match.href;
     return;
   }
   submitRequest({ topic, web: state.web, files: state.files, youtube: state.youtube });
-});
-
-document.querySelector(".suggestion").addEventListener("click", () => {
-  location.href = BUILT_IN.href;
 });
 
 query.focus();
