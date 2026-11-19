@@ -6,10 +6,12 @@
 
 import { THINKING_LEARNING_UNDERSTANDING_PACK } from "./thinking_learning_understanding.js";
 import { AREA_VS_PERIMETER_PACK } from "./area_vs_perimeter.js";
+import { HEART_PUMP_PACK } from "./heart_pump.js";
+import { MULTIPLY_BY_11_PACK } from "./multiply_by_11.js";
 
 export const FLAGSHIP_PACK_ID = THINKING_LEARNING_UNDERSTANDING_PACK.topic_pack_id;
 
-export const ALL_PACKS = [THINKING_LEARNING_UNDERSTANDING_PACK, AREA_VS_PERIMETER_PACK];
+export const ALL_PACKS = [THINKING_LEARNING_UNDERSTANDING_PACK, HEART_PUMP_PACK, MULTIPLY_BY_11_PACK, AREA_VS_PERIMETER_PACK];
 
 export function getPack(id) {
   return ALL_PACKS.find(p => p.topic_pack_id === id) || null;
