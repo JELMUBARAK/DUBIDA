@@ -40,6 +40,7 @@ export const HEART_PUMP_PACK = {
           status_default: "Flap: closed",
           micro_copy: "Push the flap from inside, then from outside.",
           toy: {
+            visual: "heart_catflap",
             options: [
               { label: "➡️ Push from inside", result: "The flap swings open: the cat gets out.", tone: "ok" },
               { label: "⬅️ Push from outside", result: "The flap stays shut: nothing gets back in.", tone: "warn" }
@@ -52,6 +53,7 @@ export const HEART_PUMP_PACK = {
           status_default: "Tyre: soft",
           micro_copy: "Pump air in, then lift the pump. Does air escape?",
           toy: {
+            visual: "heart_bikepump",
             options: [
               { label: "⬇️ Push the pump", result: "Air goes into the tyre.", tone: "ok" },
               { label: "⬆️ Lift the pump", result: "The valve shuts: no air rushes back out.", tone: "warn" }
@@ -93,6 +95,7 @@ export const HEART_PUMP_PACK = {
           status_default: "Chamber: full",
           micro_copy: "Press the top down, then let it spring back.",
           toy: {
+            visual: "heart_soap",
             options: [
               { label: "⬇️ Press down", result: "The chamber squeezes: soap squirts out.", tone: "ok" },
               { label: "⬆️ Let go", result: "The chamber springs back and refills from the bottle.", tone: "ok" }
@@ -105,6 +108,7 @@ export const HEART_PUMP_PACK = {
           status_default: "Bottle: relaxed",
           micro_copy: "Squeeze the bottle, then relax your grip.",
           toy: {
+            visual: "heart_bottle",
             options: [
               { label: "✊ Squeeze", result: "The space shrinks: water shoots out.", tone: "ok" },
               { label: "🖐️ Relax", result: "The space grows back: it sucks in to refill.", tone: "ok" }
@@ -146,6 +150,7 @@ export const HEART_PUMP_PACK = {
           status_default: "Hub: Central Station",
           micro_copy: "Ride the short line, then the long line.",
           toy: {
+            visual: "heart_trains",
             options: [
               { label: "🟢 Short line", result: "Central → Airport → back to Central.", tone: "ok" },
               { label: "🔵 Long line", result: "Central → all round the city → back to Central.", tone: "ok" }
@@ -158,6 +163,7 @@ export const HEART_PUMP_PACK = {
           status_default: "Base: the depot",
           micro_copy: "Restock at the warehouse, then deliver around town.",
           toy: {
+            visual: "heart_van",
             options: [
               { label: "📦 Warehouse run", result: "Depot → warehouse → back to the depot, fully loaded.", tone: "ok" },
               { label: "🏘️ Town run", result: "Depot → every street → back to the depot, empty.", tone: "ok" }
@@ -192,7 +198,27 @@ export const HEART_PUMP_PACK = {
       { label: "1 · Valves", title: "Keep it one-way", text: "Flaps open forward and snap shut backward." },
       { label: "2 · Pumps", title: "Squeeze & refill", text: "Right side to the lungs, left side to the body, in step." },
       { label: "3 · Double loop", title: "Lungs, then body", text: "Every minute the whole blood supply goes round both loops." }
-    ]
+    ],
+    check: {
+      question: "Rosa's heart beats at a normal speed, but a doctor finds one of her valves doesn't close properly. She gets tired on the stairs. What's going wrong?",
+      options: [
+        {
+          label: "Some blood leaks back with each squeeze, so less reaches her body",
+          correct: true,
+          feedback: "Spot on. The pump still squeezes, but a leaky valve lets part of every beat slip backwards, so her muscles get less blood."
+        },
+        {
+          label: "Her heart has to beat slower to let the valve close",
+          correct: false,
+          feedback: "Her heart rate is normal. The problem is which way the blood goes, not how fast the heart beats."
+        },
+        {
+          label: "Her lungs aren't making enough blood",
+          correct: false,
+          feedback: "Lungs don't make blood. They add oxygen to it. Think about what a valve is for."
+        }
+      ]
+    }
   },
 
   // ==========================================================================

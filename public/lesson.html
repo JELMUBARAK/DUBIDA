@@ -11,12 +11,11 @@
   <div class="max-w-3xl mx-auto py-3 px-2.5 space-y-3.5">
 
     <!-- Top bar: back to search, mystery/unit navigation, depth toggle, reset -->
-    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--card-border)] pb-2.5">
-      <div class="flex flex-wrap items-center gap-1.5">
-        <a href="/" class="px-2.5 py-1 rounded-full text-xs font-bold border border-[var(--card-border)] bg-[var(--card)] hover:border-[var(--foreground)]">DUBIDA</a>
-        <div id="navPills" class="flex flex-wrap items-center gap-1.5"></div>
-      </div>
-      <div class="flex items-center gap-1.5">
+    <!-- One row: the 5 flow steps (same in every lesson) -->
+    <div class="flex items-center gap-2 border-b border-[var(--card-border)] pb-2.5">
+      <a href="/" class="shrink-0 px-2.5 py-1 rounded-full text-xs font-bold border border-[var(--card-border)] bg-[var(--card)] hover:border-[var(--foreground)]">DUBIDA</a>
+      <div id="navPills" class="flex-1 min-w-0 flex flex-wrap items-center gap-1.5"></div>
+      <div class="shrink-0 flex items-center gap-1.5">
         <button onclick="toggleDepth()" id="depthBtn" class="px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card)] hover:border-[var(--foreground)]"></button>
         <button onclick="resetLesson()" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] px-2 py-1">↺ Reset</button>
       </div>

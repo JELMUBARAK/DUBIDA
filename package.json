@@ -6,7 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/engine.test.js tests/packs.test.js",
+    "test": "node --test tests/engine.test.js tests/packs.test.js tests/flow.test.js",
     "validate": "node scripts/validate-topics.js"
   },
   "keywords": [

@@ -5,6 +5,7 @@
 
 import { ALL_PACKS } from "../src/topics/index.js";
 import { compileAndValidateTopicPack } from "../src/engine/schema.js";
+import { auditLessonFlow, LESSON_FLOW_STEPS } from "../src/engine/flow.js";
 
 console.log("======================================================================");
 console.log("🛡️  UNDERSTANDING APP — 5-GATE LESSON COMPILER & GUARDRAIL VALIDATOR");
@@ -40,8 +41,25 @@ for (const pack of ALL_PACKS) {
   }
 }
 
+// Unified Lesson Flow: report gaps; only fail on them with --strict.
+const strictFlow = process.argv.includes("--strict");
+let flowComplete = true;
+console.log("\n======================================================================");
+console.log(`🧭 UNIFIED LESSON FLOW ${strictFlow ? "(strict)" : "(report only; use --strict to fail on gaps)"}`);
+console.log("   " + LESSON_FLOW_STEPS.map(s => s.label).join(" → "));
+console.log("======================================================================");
+for (const pack of ALL_PACKS) {
+  const flow = auditLessonFlow(pack);
+  if (!flow.complete) flowComplete = false;
+  console.log(`\n${flow.complete ? "✅" : "⚠️ "} ${pack.title} (${pack.topic_pack_id})`);
+  for (const step of flow.steps) {
+    console.log(`   ${step.ok ? "✓" : "✖"} ${step.label}`);
+    for (const m of step.missing) console.log(`       - ${m}`);
+  }
+}
+
 console.log("\n----------------------------------------------------------------------");
-if (!allValid) {
+if (!allValid || (strictFlow && !flowComplete)) {
   process.exit(1);
 }
 console.log(`✅ ALL ${ALL_PACKS.length} TOPIC PACKS PASSED THE 5 GUARDRAIL GATES & DISCOVERY RULES.`);
