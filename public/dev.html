@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Understanding App — Developer Route & Engine Telemetry (/dev)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js" onerror="void 0"></script>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-2.5 m-0 min-h-screen">
+  <div class="max-w-6xl mx-auto space-y-2.5">
+
+    <!-- Top Header & 4-Unit Course Path + Unified Recap Selector -->
+    <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 space-y-2">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-xs font-mono bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold">DEV / ENGINE ROUTE</span>
+          <h1 class="text-sm sm:text-base font-bold text-[var(--foreground)]">Universal 4+1 Spine, 5-Gate Compiler & Telemetry Inspector</h1>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="/" class="px-2.5 py-1 rounded border border-[var(--border)] bg-[var(--background)] text-xs font-medium text-[var(--primary)] hover:underline">← Learner Discovery App (/)</a>
+          <button onclick="resetUnit()" class="px-2.5 py-1 rounded border border-[var(--border)] bg-[var(--background)] text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]">↺ Reset Unit</button>
+        </div>
+      </div>
+
+      <!-- 5 Connected Tabs: Unit 1 -> Unit 2 -> Unit 3 -> Unit 4 -> Unified Recap -->
+      <div id="unitPathBar" class="grid grid-cols-2 sm:grid-cols-5 gap-1.5"></div>
+    </div>
+
+    <!-- 5-Step Spine Progress Bar -->
+    <div id="spineBar" class="grid grid-cols-5 gap-1.5"></div>
+
+    <!-- Main Split View: Left = 5-Step Spine Player (7 cols), Right = Dev X-Ray, 5-Gate Guardrails & QA Personas (5 cols) -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
+
+      <!-- LEFT: 5-STEP SPINE & LIVING OBJECT STAGE -->
+      <div class="md:col-span-7 rounded-xl border border-[var(--primary)] bg-[var(--card)] p-3.5 space-y-3">
+        <!-- Card Header -->
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--card-border)] pb-3">
+          <div>
+            <span id="cardStepBadge" class="text-xs font-mono uppercase font-bold text-[var(--primary)] tracking-wider"></span>
+            <h2 id="cardTitle" class="text-base font-bold text-[var(--foreground)] mt-0.5"></h2>
+          </div>
+          <span id="masteryBadge" class="px-2.5 py-1 rounded-md font-mono text-xs"></span>
+        </div>
+
+        <!-- INTERACTIVE LIVING OBJECT STAGE -->
+        <div id="livingObjectWrapper" class="rounded-xl border border-[var(--card-border)] bg-[var(--background)] p-4 space-y-3.5"></div>
+
+        <!-- Dynamic Card Prompt & Assessment Stage -->
+        <div id="stageContainer" class="space-y-4 text-sm"></div>
+
+        <!-- Card Footer Controls -->
+        <div class="pt-3 border-t border-[var(--card-border)] flex items-center justify-between text-xs text-[var(--muted-foreground)]">
+          <button onclick="togglePause()" id="pauseBtn" class="px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-[var(--background)] text-[var(--foreground)] hover:border-[var(--primary)] font-medium">⏸ Pause & Save State</button>
+          <span id="footerHint" class="font-mono"></span>
+        </div>
+      </div>
+
+      <!-- RIGHT: QA TESTER PERSONAS, 5-GATE COMPILER AUDIT & LIVE ENGINE X-RAY -->
+      <div class="md:col-span-5 space-y-2.5">
+
+        <!-- 5-Gate Simulation Accuracy Guardrail Status -->
+        <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3.5 space-y-2 text-xs">
+          <div class="flex items-center justify-between border-b border-[var(--card-border)] pb-2">
+            <span class="text-sm font-bold text-[var(--foreground)]">🛡️ 5-Gate Lesson Compiler Audit</span>
+            <span id="compilerBadge" class="px-2 py-0.5 rounded font-mono text-xs font-bold"></span>
+          </div>
+          <div id="guardrailGatesGrid" class="grid grid-cols-1 gap-1.5 font-mono text-xs"></div>
+        </div>
+
+        <!-- QA Persona Simulator -->
+        <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3.5 space-y-2 text-xs">
+          <div class="flex items-center justify-between border-b border-[var(--card-border)] pb-2">
+            <span class="text-sm font-bold text-[var(--foreground)]">🧪 QA Tester: Simulate a Learner Answer</span>
+            <span class="font-mono text-[var(--muted-foreground)]">Dev Panel</span>
+          </div>
+          <p class="text-[var(--muted-foreground)] leading-relaxed">Click a persona below to auto-fill Step 2 on the left (and set the exact dial numbers) to test the Split-Rubric Grader:</p>
+          <div id="qaButtonsList" class="space-y-1.5"></div>
+        </div>
+
+        <!-- State Machine X-Ray -->
+        <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3.5 space-y-2 text-xs">
+          <div class="flex items-center justify-between border-b border-[var(--card-border)] pb-2">
+            <span class="text-sm font-bold text-[var(--foreground)]">🔬 Live Engine State Machine</span>
+            <span id="specVerBadge" class="font-mono text-[var(--muted-foreground)]"></span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+            <div class="rounded-lg bg-[var(--background)] border border-[var(--card-border)] p-2">
+              <div class="text-[var(--muted-foreground)]">Current Step:</div>
+              <div id="xrayNode" class="font-bold text-[var(--primary)] mt-0.5"></div>
+            </div>
+            <div class="rounded-lg bg-[var(--background)] border border-[var(--card-border)] p-2">
+              <div class="text-[var(--muted-foreground)]">Mastery Status:</div>
+              <div id="xrayMastery" class="font-bold mt-0.5"></div>
+            </div>
+            <div class="rounded-lg bg-[var(--background)] border border-[var(--card-border)] p-2">
+              <div class="text-[var(--muted-foreground)]">Check A (HOW / Predict):</div>
+              <div id="xrayCheckA" class="font-bold mt-0.5"></div>
+            </div>
+            <div class="rounded-lg bg-[var(--background)] border border-[var(--card-border)] p-2">
+              <div class="text-[var(--muted-foreground)]">Check B (WHY / Rule):</div>
+              <div id="xrayCheckB" class="font-bold mt-0.5"></div>
+            </div>
+          </div>
+          <div class="rounded-lg bg-[var(--background)] border border-[var(--card-border)] p-2 font-mono text-xs">
+            <div class="text-[var(--muted-foreground)]">Help / Scaffolds Logged:</div>
+            <div id="xrayHelp" class="text-[var(--code-foreground)] mt-0.5"></div>
+          </div>
+        </div>
+
+        <!-- Active JSON Spec Inspector -->
+        <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3.5 space-y-2 text-xs">
+          <div class="flex flex-wrap items-center justify-between gap-1 border-b border-[var(--card-border)] pb-2">
+            <div class="flex flex-wrap gap-1">
+              <button onclick="setInspectorTab('ledger')" id="inspTab-ledger" class="px-2 py-1 rounded font-mono text-xs"></button>
+              <button onclick="setInspectorTab('rubric')" id="inspTab-rubric" class="px-2 py-1 rounded font-mono text-xs"></button>
+              <button onclick="setInspectorTab('object')" id="inspTab-object" class="px-2 py-1 rounded font-mono text-xs"></button>
+              <button onclick="setInspectorTab('truth')" id="inspTab-truth" class="px-2 py-1 rounded font-mono text-xs"></button>
+            </div>
+            <span class="font-mono text-[var(--muted-foreground)]">JSON Contract</span>
+          </div>
+          <pre id="inspectorPre" class="rounded-lg bg-[var(--background)] border border-[var(--card-border)] p-3 font-mono text-xs text-[var(--code-foreground)] overflow-x-auto max-h-56 overflow-y-auto whitespace-pre-wrap"></pre>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="/js/dev-console.js"></script>
+</body>
+</html>

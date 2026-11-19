@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Understanding App — Interactive Discovery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js" onerror="void 0"></script>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-0 m-0 select-none min-h-screen">
+  <div class="max-w-3xl mx-auto py-3 px-2.5 space-y-3.5">
+
+    <!-- Minimalist Top Navigation Bar (Zero Developer Clutter on Learner Surface) -->
+    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--card-border)] pb-2.5">
+      <div id="navPills" class="flex flex-wrap items-center gap-1.5"></div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="toggleDepthMode()" id="depthToggleBtn" class="px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--card-border)] bg-[var(--card)] hover:border-[var(--foreground)] transition-all"></button>
+        <button onclick="resetCurrent()" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors px-2 py-1">
+          ↺ Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Learner Stage -->
+    <div id="stage" class="space-y-3.5"></div>
+
+  </div>
+
+  <script type="module" src="/js/learner-app.js"></script>
+</body>
+</html>

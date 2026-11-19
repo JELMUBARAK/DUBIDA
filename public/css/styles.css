@@ -1,0 +1,123 @@
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-border: #e2e8f0;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #334155;
+  --muted-foreground: #64748b;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --code-foreground: #0284c7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #090d16;
+    --foreground: #f1f5f9;
+    --card: #111827;
+    --card-border: #1e293b;
+    --border: #1e293b;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --secondary: #1e293b;
+    --secondary-foreground: #cbd5e1;
+    --muted-foreground: #94a3b8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --code-foreground: #38bdf8;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pourStream {
+  0% {
+    stroke-dashoffset: 16;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.stream-flow {
+  stroke-dasharray: 4 4;
+  animation: pourStream 0.3s linear infinite;
+}
+
+@keyframes flowRight {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes flowLeft {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 24;
+  }
+}
+
+.bridge-encode {
+  stroke-dasharray: 6 6;
+  animation: flowRight 0.5s linear infinite;
+}
+
+.bridge-retrieve {
+  stroke-dasharray: 6 6;
+  animation: flowLeft 0.5s linear infinite;
+}
+
+@keyframes shakeAnim {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.shake-active {
+  animation: shakeAnim 0.35s ease-in-out infinite;
+}
+
+@keyframes pulseBadge {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.pulse-live {
+  animation: pulseBadge 1.3s ease-in-out infinite;
+}

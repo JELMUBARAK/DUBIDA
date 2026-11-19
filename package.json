@@ -1,0 +1,20 @@
+{
+  "name": "understanding-app",
+  "version": "2.0.0",
+  "description": "Understanding App: Dual-Experience Inductive Discovery & Universal 4+1 Learning Engine",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/engine.test.js",
+    "validate": "node scripts/validate-topics.js"
+  },
+  "keywords": [
+    "inductive-discovery",
+    "mental-models",
+    "cognitive-science",
+    "learning-engine",
+    "living-objects"
+  ],
+  "license": "MIT"
+}
