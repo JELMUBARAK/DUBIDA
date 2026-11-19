@@ -46,8 +46,26 @@ const defaultState = {
   recap_backwardsChain: null, // 'wrong' | 'correct'
   recap_samFixed: false,
   recap_personalRule: "",
-  recap_ruleSaved: false
+  recap_ruleSaved: false,
+
+  // After the Day-1 Hook: "What's next?" (apply it now, or start a new search)
+  next_choice: null, // null | 'apply'
+  apply_topic: "",
+  apply_done: []
 };
+
+// Practical plan built from the five ideas the learner just discovered.
+const APPLY_STEPS = [
+  { id: "think", label: "Thinking", text: "Before you start, spend 2 minutes picturing how it could go, and what could go wrong." },
+  { id: "focus", label: "4-Slot Focus", text: "Phone in another room. Work on no more than 4 new ideas at a time." },
+  { id: "why", label: "Understanding", text: "For each new fact, ask \"why?\" and link it to something you already know." },
+  { id: "recall", label: "Learning", text: "Close the book and explain it from memory. Check what you missed, fix it, try again." },
+  { id: "space", label: "Spacing", text: "Recall it again tomorrow, in 3 days and in a week, without rereading first." }
+];
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
 
 const state = loadPersistedState();
 
@@ -124,7 +142,33 @@ window.resetCurrent = () => {
     state.recap_samFixed = false;
     state.recap_personalRule = "";
     state.recap_ruleSaved = false;
+    state.next_choice = null;
+    state.apply_topic = "";
+    state.apply_done = [];
   }
+  savePersistedState();
+  render();
+};
+
+window.chooseNext = choice => {
+  if (choice === "search") {
+    window.location.href = "/";
+    return;
+  }
+  state.next_choice = choice;
+  savePersistedState();
+  render();
+};
+
+window.updateApplyTopic = val => {
+  state.apply_topic = val;
+  savePersistedState();
+};
+
+window.toggleApplyStep = id => {
+  state.apply_done = state.apply_done.includes(id)
+    ? state.apply_done.filter(x => x !== id)
+    : [...state.apply_done, id];
   savePersistedState();
   render();
 };
@@ -521,6 +565,59 @@ window.toggleDepthMode = () => {
   savePersistedState();
   render();
 };
+
+function renderWhatsNext() {
+  const choiceBtn = (choice, icon, title, sub, active) => `
+    <button onclick="chooseNext('${choice}')" class="flex-1 text-left p-3 rounded-xl border ${active ? "border-[var(--primary)]" : "border-[var(--card-border)] hover:border-[var(--foreground)]"} bg-[var(--background)] transition-all">
+      <div class="text-sm font-semibold text-[var(--foreground)]">${icon} ${title}</div>
+      <div class="text-xs text-[var(--muted-foreground)] mt-0.5">${sub}</div>
+    </button>`;
+
+  const plan =
+    state.next_choice !== "apply"
+      ? ""
+      : `
+      <div class="space-y-2.5 fade-in">
+        <input
+          type="text"
+          value="${escapeHtml(state.apply_topic)}"
+          oninput="updateApplyTopic(this.value)"
+          onchange="render()"
+          placeholder="What are you about to learn or work on? (e.g. Spanish verbs, a work report)"
+          class="w-full rounded-xl border border-[var(--card-border)] bg-[var(--background)] px-3 py-2 text-xs text-[var(--foreground)]"
+        />
+        <div class="text-xs font-semibold text-[var(--foreground)]">
+          Your plan${state.apply_topic.trim() ? ` for <span class="text-[var(--primary)]">${escapeHtml(state.apply_topic.trim())}</span>` : ""}:
+        </div>
+        ${APPLY_STEPS.map(
+          (s, i) => `
+          <label class="flex items-start gap-2.5 p-2.5 rounded-xl border ${state.apply_done.includes(s.id) ? "border-[var(--success)]" : "border-[var(--card-border)]"} bg-[var(--background)] cursor-pointer">
+            <input type="checkbox" ${state.apply_done.includes(s.id) ? "checked" : ""} onchange="toggleApplyStep('${s.id}')" class="mt-0.5 accent-[var(--success)]" />
+            <span class="text-xs text-[var(--foreground)]"><b>${i + 1}. ${s.label}:</b> ${s.text}</span>
+          </label>`
+        ).join("")}
+        ${
+          state.apply_done.length === APPLY_STEPS.length
+            ? `<div class="text-xs text-[var(--success)] font-semibold">🎉 You used the whole loop on something real. That's understanding in action.</div>`
+            : `<div class="text-xs text-[var(--muted-foreground)]">${state.apply_done.length} of ${APPLY_STEPS.length} done</div>`
+        }
+        <button onclick="chooseNext('search')" class="w-full py-2 rounded-xl border border-[var(--card-border)] bg-[var(--background)] hover:border-[var(--foreground)] text-xs font-semibold">
+          🔍 Done? Start a new search
+        </button>
+      </div>`;
+
+  return `
+    <div class="rounded-xl border border-[var(--primary)] bg-[var(--card)] p-3.5 space-y-2.5 fade-in">
+      <div class="text-sm font-bold text-[var(--foreground)]">What's next?</div>
+      <div class="flex flex-col sm:flex-row gap-2">
+        ${choiceBtn("apply", "🛠️", "Use it now", "Put what you just learned to work on something real", state.next_choice === "apply")}
+        ${choiceBtn("search", "🔍", "Start a new search", "Learn a new topic", false)}
+      </div>
+      ${plan}
+    </div>`;
+}
+
+window.render = () => render();
 
 function renderUnderTheHoodStrip(cardIdx) {
   if (state.level !== "deep") return "";
@@ -1328,6 +1425,7 @@ function render() {
                 ? `<div class="text-xs text-[var(--success)] font-mono">✓ Scheduled: 10 min (Backwards Review) → 1 hr → Day 1 → Day 3 → Day 7</div>`
                 : ""
             }
+            ${state.recap_ruleSaved ? renderWhatsNext() : ""}
           </div>
         </div>
       `
